@@ -2,15 +2,13 @@ import { Footer } from '@/components';
 import {LockOutlined,UserOutlined} from '@ant-design/icons';
 import { LoginForm,ProFormText,} from '@ant-design/pro-components';
 import { Helmet, history, useModel } from '@umijs/max';
-import {Tabs, message} from 'antd';
+import { Tabs, message } from 'antd';
 import { createStyles } from 'antd-style';
 import React, {useEffect, useState} from 'react';
 import { flushSync } from 'react-dom';
 import Settings from '../../../../config/defaultSettings';
 import {listChartVoByPageUsingPost} from "@/services/zixinbi/chartController";
-import {Link} from "@@/exports";
-import {getLoginUserUsingGet, userLoginUsingPost} from "@/services/zixinbi/userController";
-
+import {getLoginUserUsingGet, userRegisterUsingPost} from "@/services/zixinbi/userController";
 
 
 const useStyles = createStyles(({ token }) => {
@@ -48,7 +46,7 @@ const useStyles = createStyles(({ token }) => {
     },
   };
 });
-const Login: React.FC = () => {
+const Register: React.FC = () => {
   const [type, setType] = useState<string>('account');
   const { initialState, setInitialState } = useModel('@@initialState');
   const { styles } = useStyles();
@@ -69,12 +67,18 @@ const Login: React.FC = () => {
       });
     }
   };
-  const handleSubmit = async (values: API.UserLoginRequest) => {
+  //表单提交
+  const handleSubmit = async (values: API.UserRegisterRequest) => {
+    const {userPassword,checkPassword} = values;
+    if (userPassword !== checkPassword){
+      message.error('两次输入的密码不一致')
+      return;
+    }
     try {
-      // 登录
-      const res = await userLoginUsingPost(values);
+      // 注册
+      const res = await userRegisterUsingPost(values);
       if (res.code === 0) {
-        const defaultLoginSuccessMessage = '登录成功！';
+        const defaultLoginSuccessMessage = '注册成功！';
         message.success(defaultLoginSuccessMessage);
         await fetchUserInfo();
         const urlParams = new URL(window.location.href).searchParams;
@@ -84,7 +88,7 @@ const Login: React.FC = () => {
         message.error(res.message);
       }
     } catch (error) {
-      const defaultLoginFailureMessage = '登录失败，请重试！';
+      const defaultLoginFailureMessage = '注册失败，请重试！';
       console.log(error);
       message.error(defaultLoginFailureMessage);
     }
@@ -93,7 +97,7 @@ const Login: React.FC = () => {
     <div className={styles.container}>
       <Helmet>
         <title>
-          {'登录'}- {Settings.title}
+          {'注册'}- {Settings.title}
         </title>
       </Helmet>
       <div
@@ -107,12 +111,16 @@ const Login: React.FC = () => {
             minWidth: 280,
             maxWidth: '75vw',
           }}
+          submitter={{
+           searchConfig: {
+             submitText: '注册'}
+          }}
           logo={<img alt="logo" src="/logo.svg" />}
           title="梓歆智能BI"
           subTitle={'梓歆智能BI'}
 
           onFinish={async (values) => {
-            await handleSubmit(values as API.UserLoginRequest);
+            await handleSubmit(values as API.UserRegisterRequest);
           }}
         >
           <Tabs
@@ -122,7 +130,7 @@ const Login: React.FC = () => {
             items={[
               {
                 key: 'account',
-                label: '账户密码登录',
+                label: '账户密码注册',
               }
             ]}
           />
@@ -156,21 +164,26 @@ const Login: React.FC = () => {
                   },
                 ]}
               />
+              <ProFormText.Password
+                name="checkPassword"
+                fieldProps={{
+                  size: 'large',
+                  prefix: <LockOutlined />,
+                }}
+                placeholder={'请再次输入密码'}
+                rules={[
+                  {
+                    required: true,
+                    message: '确认密码是必填项！',
+                  },
+                ]}
+              />
             </>
           )}
-          <div
-            style={{
-              marginBottom: 24,
-              textAlign: 'center'
-            }
-          }
-          >
-              <Link to="/user/register">新用户注册</Link>
-          </div>
         </LoginForm>
       </div>
       <Footer />
     </div>
   );
 };
-export default Login;
+export default Register;
