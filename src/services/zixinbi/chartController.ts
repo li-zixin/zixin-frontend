@@ -88,8 +88,49 @@ export async function genChartByAiUsingPost(
   });
 }
 
+/** genChartByAiAsync POST /api/chart/gen/async */
+export async function genChartByAiAsyncUsingPost(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.genChartByAiAsyncUsingPOSTParams,
+  body: {},
+  file?: File,
+  options?: { [key: string]: any },
+) {
+  const formData = new FormData();
+
+  if (file) {
+    formData.append('file', file);
+  }
+
+  Object.keys(body).forEach((ele) => {
+    const item = (body as any)[ele];
+
+    if (item !== undefined && item !== null) {
+      if (typeof item === 'object' && !(item instanceof File)) {
+        if (item instanceof Array) {
+          item.forEach((f) => formData.append(ele, f || ''));
+        } else {
+          formData.append(ele, JSON.stringify(item));
+        }
+      } else {
+        formData.append(ele, item);
+      }
+    }
+  });
+
+  return request<API.BaseResponseBiResponse_>('/api/chart/gen/async', {
+    method: 'POST',
+    params: {
+      ...params,
+    },
+    data: formData,
+    requestType: 'form',
+    ...(options || {}),
+  });
+}
+
 /** getChartVOById GET /api/chart/get */
-export async function getChartVoByIdUsingGet(
+export async function getChartByIdUsingGet(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
   params: API.getChartVOByIdUsingGETParams,
   options?: { [key: string]: any },
@@ -104,7 +145,7 @@ export async function getChartVoByIdUsingGet(
 }
 
 /** listChartVOByPage POST /api/chart/list/page/vo */
-export async function listChartVoByPageUsingPost(
+export async function listChartByPageUsingPost(
   body: API.ChartQueryRequest,
   options?: { [key: string]: any },
 ) {
@@ -119,7 +160,7 @@ export async function listChartVoByPageUsingPost(
 }
 
 /** listMyChartVOByPage POST /api/chart/my/list/page/vo */
-export async function listMyChartVoByPageUsingPost(
+export async function listMyChartByPageUsingPost(
   body: API.ChartQueryRequest,
   options?: { [key: string]: any },
 ) {

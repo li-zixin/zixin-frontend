@@ -7,7 +7,7 @@ import { createStyles } from 'antd-style';
 import React, {useEffect, useState} from 'react';
 import { flushSync } from 'react-dom';
 import Settings from '../../../../config/defaultSettings';
-import {listChartVoByPageUsingPost} from "@/services/zixinbi/chartController";
+import {listChartByPageUsingPost} from "@/services/zixinbi/chartController";
 import {getLoginUserUsingGet, userRegisterUsingPost} from "@/services/zixinbi/userController";
 
 
@@ -52,7 +52,7 @@ const Register: React.FC = () => {
   const { styles } = useStyles();
 
   useEffect(()=>{
-    listChartVoByPageUsingPost({}).then(res => {
+    listChartByPageUsingPost({}).then(res => {
       console.error('res',res)
     })
   })
