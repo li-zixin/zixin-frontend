@@ -129,10 +129,51 @@ export async function genChartByAiAsyncUsingPost(
   });
 }
 
-/** getChartVOById GET /api/chart/get */
+/** genChartByAiAsyncMq POST /api/chart/gen/async/mq */
+export async function genChartByAiAsyncMqUsingPost(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.genChartByAiAsyncMqUsingPOSTParams,
+  body: {},
+  file?: File,
+  options?: { [key: string]: any },
+) {
+  const formData = new FormData();
+
+  if (file) {
+    formData.append('file', file);
+  }
+
+  Object.keys(body).forEach((ele) => {
+    const item = (body as any)[ele];
+
+    if (item !== undefined && item !== null) {
+      if (typeof item === 'object' && !(item instanceof File)) {
+        if (item instanceof Array) {
+          item.forEach((f) => formData.append(ele, f || ''));
+        } else {
+          formData.append(ele, JSON.stringify(item));
+        }
+      } else {
+        formData.append(ele, item);
+      }
+    }
+  });
+
+  return request<API.BaseResponseBiResponse_>('/api/chart/gen/async/mq', {
+    method: 'POST',
+    params: {
+      ...params,
+    },
+    data: formData,
+    requestType: 'form',
+    ...(options || {}),
+  });
+}
+
+/** getChartById GET /api/chart/get */
 export async function getChartByIdUsingGet(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.getChartVOByIdUsingGETParams,
+  params: API.getChartByIdUsingGETParams,
   options?: { [key: string]: any },
 ) {
   return request<API.BaseResponseChart_>('/api/chart/get', {
@@ -144,12 +185,12 @@ export async function getChartByIdUsingGet(
   });
 }
 
-/** listChartVOByPage POST /api/chart/list/page/vo */
+/** listChartByPage POST /api/chart/list/page */
 export async function listChartByPageUsingPost(
   body: API.ChartQueryRequest,
   options?: { [key: string]: any },
 ) {
-  return request<API.BaseResponsePageChart_>('/api/chart/list/page/vo', {
+  return request<API.BaseResponsePageChart_>('/api/chart/list/page', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -159,12 +200,12 @@ export async function listChartByPageUsingPost(
   });
 }
 
-/** listMyChartVOByPage POST /api/chart/my/list/page/vo */
+/** listMyChartByPage POST /api/chart/my/list/page */
 export async function listMyChartByPageUsingPost(
   body: API.ChartQueryRequest,
   options?: { [key: string]: any },
 ) {
-  return request<API.BaseResponsePageChart_>('/api/chart/my/list/page/vo', {
+  return request<API.BaseResponsePageChart_>('/api/chart/my/list/page', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
